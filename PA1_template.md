@@ -103,7 +103,7 @@ We first consider the mean total steps taken per day. Initially, we will simply 
     labs(x = "\nTotal steps per day", y = "\nFrequency")
 ```
 
-![plot of chunk total_steps_na](figures/total_steps_na-1.png) 
+![plot of chunk total_steps_na](figure/total_steps_na-1.png) 
 
 `Total steps per day` has mean `10766.2` and median `10765`.
 
@@ -132,7 +132,7 @@ Next, we consider the average daily activity pattern -- that is, for each of the
     labs(x = "\nInterval Start Time", y = "Average steps per interval\n")
 ```
 
-![plot of chunk daily_activity_na](figures/daily_activity_na-1.png) 
+![plot of chunk daily_activity_na](figure/daily_activity_na-1.png) 
 
 ```r
   # Calculate interval with max(avgSteps), and format as %H:%M.
@@ -266,7 +266,7 @@ We now revisit the question posed in the first section -- *what is the total num
     labs(x = "\nTotal steps per day", y = "Frequency\n")
 ```
 
-![plot of chunk total_steps_complete](figures/total_steps_complete-1.png) 
+![plot of chunk total_steps_complete](figure/total_steps_complete-1.png) 
 
 Now `Total steps per day` has mean `10821.2` and median `11015`. To compare, the original results from the NA-omitted dataset were mean `10766.2` and median `10765`.
 
@@ -313,7 +313,7 @@ Note that `class(dt.complete$dayType)` is `character`, but will be converted to 
     theme(legend.position = "none")
 ```
 
-![plot of chunk daily_activity_complete_dayType](figures/daily_activity_complete_dayType-1.png) 
+![plot of chunk daily_activity_complete_dayType](figure/daily_activity_complete_dayType-1.png) 
 
 We observe distinct activity profiles on weekdays versus weekends. On weekdays, activity begins earlier and spikes heavily in the morning hours; on weekends, activity is distributed more evenly throughout the day. 
 

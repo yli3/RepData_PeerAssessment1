@@ -7,7 +7,7 @@ output:
 ---
 
 ```{r global_options, include = FALSE}
-  knitr::opts_chunk$set(fig.path = 'figures/', echo = TRUE)
+  knitr::opts_chunk$set(echo = TRUE)
   options(scipen = 999, digits = 1)
 ```
 
