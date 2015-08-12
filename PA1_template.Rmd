@@ -94,7 +94,7 @@ We first consider the mean total steps taken per day. Initially, we will simply 
     labs(x = "\nTotal steps per day", y = "\nFrequency")
 ```
 
-`Total steps per day` has mean $\sim$ ``r mean(dt.total$totalSteps)`` and median ``r median(dt.total$totalSteps)``.
+`Total steps per day` has mean ``r mean(dt.total$totalSteps)`` and median ``r median(dt.total$totalSteps)``.
 
 ## Average daily activity pattern 
 
@@ -225,7 +225,7 @@ We now revisit the question posed in the first section -- *what is the total num
 
 Now `Total steps per day` has mean ``r mean(dt.complete.total$totalSteps)`` and median ``r median(dt.complete.total$totalSteps)``. To compare, the original results from the NA-omitted dataset were mean ``r mean(dt.total$totalSteps)`` and median ``r median(dt.total$totalSteps)``.
 
-The impact is modest, but both mean and median have shifted upwards. This method of imputing `NA` values suggests that the missing dates from this interval removed some potentially more active days from the original dataset.
+The impact is modest, but both mean and median have shifted upwards. This method of imputing `NA` values suggests that the missing dates from this interval removed some potentially more active days from the original dataset. It's important to caution that other methods (such as median interval steps) may have yielded much different results, but for purposes of this assignment, *quality* of the method was not a consideration so much as illustrating its execution.
 
 ## Daily activity: weekdays versus weekends  
 
