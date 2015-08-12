@@ -444,9 +444,11 @@ hr {
 
 <p>To do this, we&#39;ll introduce a factor variable to <code>dt.complete</code> indicating whether each observation falls on a weekday or weekend. For convenience, we&#39;ll make use of the <code>chron</code> package&#39;s <code>is.weekend</code> function:</p>
 
-<pre><code class="r">  dt.complete$dayType &lt;- ifelse(is.weekend(dt.complete$date), 
-    &quot;weekend&quot;, 
-    &quot;weekday&quot;
+<pre><code class="r">  dt.complete$dayType &lt;- as.factor(
+    ifelse(is.weekend(dt.complete$date), 
+      &quot;weekend&quot;, 
+      &quot;weekday&quot;
+    )
   )
 
   dt.complete.daily &lt;- dt.complete[, 
@@ -454,8 +456,6 @@ hr {
     by = .(interval, dayType)
   ]
 </code></pre>
-
-<p>Note that <code>class(dt.complete$dayType)</code> is <code>character</code>, but will be converted to factor where needed.</p>
 
 <pre><code class="r">  # Time series plot with facets.
   ggplot(data = dt.complete.daily, aes(x = interval, y = avgSteps)) +

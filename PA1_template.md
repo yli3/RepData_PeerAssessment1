@@ -278,9 +278,11 @@ To do this, we'll introduce a factor variable to `dt.complete` indicating whethe
 
 
 ```r
-  dt.complete$dayType <- ifelse(is.weekend(dt.complete$date), 
-    "weekend", 
-    "weekday"
+  dt.complete$dayType <- as.factor(
+    ifelse(is.weekend(dt.complete$date), 
+      "weekend", 
+      "weekday"
+    )
   )
   
   dt.complete.daily <- dt.complete[, 
@@ -288,8 +290,6 @@ To do this, we'll introduce a factor variable to `dt.complete` indicating whethe
     by = .(interval, dayType)
   ]
 ```
-
-Note that `class(dt.complete$dayType)` is `character`, but will be converted to factor where needed.
 
 
 ```r

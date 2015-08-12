@@ -232,9 +232,11 @@ Continuing to work with the completed dataset, we return to revisit more broadly
 To do this, we'll introduce a factor variable to `dt.complete` indicating whether each observation falls on a weekday or weekend. For convenience, we'll make use of the `chron` package's `is.weekend` function:
 
 ```{r dayType_factor, results = "hide"}
-  dt.complete$dayType <- ifelse(is.weekend(dt.complete$date), 
-    "weekend", 
-    "weekday"
+  dt.complete$dayType <- as.factor(
+    ifelse(is.weekend(dt.complete$date), 
+      "weekend", 
+      "weekday"
+    )
   )
   
   dt.complete.daily <- dt.complete[, 
@@ -242,8 +244,6 @@ To do this, we'll introduce a factor variable to `dt.complete` indicating whethe
     by = .(interval, dayType)
   ]
 ```
-
-Note that `class(dt.complete$dayType)` is ``r class(dt.complete$dayType)``, but will be converted to factor where needed.
 
 ```{r daily_activity_complete_dayType}
   # Time series plot with facets.
