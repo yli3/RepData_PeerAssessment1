@@ -58,7 +58,7 @@ First, let's clean this data by addressing an oddity in its format. The interval
 ##  [1]   0   5  10  15  20  25  30  35  40  45  50  55 100 105 110
 ```
 
-To fix this, we can extract the hour and the minute using the quotient and remainder resulting from division by `100`. For purposes of this endeavor, we'll leave things comfortably simple and numeric:
+To fix this, we extract the hour and the minute using the quotient and remainder resulting from division by `100`. For purposes of this endeavor, we'll leave things comfortably simple and numeric:
 
 
 ```r
@@ -180,9 +180,9 @@ First, let's try to see where our `NA` values are occurring by counting how many
 
 We observe that data is missing from several days completely (there are `288` intervals per day), and all other days are complete. 
 
-A simple way to fill in the missing values is to use the mean interval value over the dataset. This would be suitable if we had occasional pockets of missing data, but ours are from complete days. Filling the `NA` values with the averages serves only to preserve the daily total mean and daily mean activity pattern exactly. Doing so would treat the given dataset as totally complete, but with ``n =`` `53` days of observations rather than ``n = `` `61`. Thus, while the daily median would understandably be nudged, no resolution is gained in the exercise.
+A simple way to fill in the missing values is to use the mean interval value over the dataset. This would be suitable if we had occasional pockets of missing data, rather than only missing whole days. Filling the `NA` values with the averages treats the given dataset as complete, but with ``n =`` `53` days of observations rather than ``n = `` `61`. Thus, the interval and daily means remain the same, and while the median is nudged, no resolution is gained in the exercise. For example, why not add arbitrary numbers of duplicate mean days to the dataset?
 
-Another simple, but potentially more meaningful way of addressing `NA` values is to instead replace each one with with mean interval steps for the same day of week. This addresses the possibility that the relative omission of certain days of the week may be skewing average daily patterns, as well as total data. 
+Another simple, but potentially more meaningful way of addressing `NA` values is to instead replace each one with with mean interval steps for the same day of week. This addresses the possibility that within the specific timeframe of the collected data, a relative omission of certain days of the week may be skewing both the average daily interval pattern, as well as the mean daily steps.
 
 We'll look more closely at that possibility in the next section. For now, our `NA` imputing method is presented:
 
@@ -209,7 +209,7 @@ We'll look more closely at that possibility in the next section. For now, our `N
   dt.complete[naRows, steps := naReplacements]
 ```
 
-Note that there was an assumption here that `na.omit(dt)` still contained every day of the week, ensuring that we would always have a valid NA value to impute. This can easily be verified:
+Note that there was an assumption here that `na.omit(dt)` still contained every day of the week, ensuring that we would always have a valid NA value to impute. This may easily be verified:
 
 
 ```r
@@ -238,7 +238,7 @@ It's worth also recognizing a limitation: this method is best when the dataset i
 ## 7:       1   7
 ```
 
-We now revisit the question posed in the first section -- *what is the total number of steps taken per day?* -- and evaluate it with our newly completed dataset `dt.complete` (containing `0` `NA` rows).
+We now revisit the question posed in the first section -- *what is the total number of steps taken per day?* -- and evaluate it with our newly completed dataset `dt.complete` (which contains `0` `NA` rows).
 
 
 ```r
@@ -268,11 +268,11 @@ We now revisit the question posed in the first section -- *what is the total num
 
 Now `Total steps per day` has mean `10821.2` and median `11015`. To compare, the original results from the NA-omitted dataset were mean `10766.2` and median `10765`.
 
-The impact is modest, but both mean and median have shifted upwards. This method of imputing `NA` values suggests that the missing dates from this interval removed some potentially more active days from the original dataset. It's important to caution that other methods (such as median interval steps) may have yielded much different results, but for purposes of this assignment, *quality* of the method was not a consideration so much as illustrating its execution.
+The impact is modest, but both mean and median have shifted upwards. This method of imputing `NA` values suggests, then, that the missing dates produced a slight downwards bias by excluding observations from some of the days likely to have been more active in the dataset. It's important to caution that other methods (such as median interval steps) may paint a much different picture, but for purposes of this assignment, the merits of the `NA` imputing method are secondary to its demonstration.
 
 ## Daily activity: weekdays versus weekends  
 
-Continuing to work with the completed dataset, we return to revisit more broadly our earlier suggestion that activity patterns may be different for different days of the week. Here, we'll consider **average daily activity** per interval, comparing weekdays versus weekends. 
+Continuing to work with the completed dataset, we return to revisit more broadly our earlier suggestion that activity patterns may be different for different days of the week. Here, we'll consider the difference in **weekday** and **weekend** observations for average daily activity per 5-minute interval.
 
 To do this, we'll introduce a factor variable to `dt.complete` indicating whether each observation falls on a weekday or weekend. For convenience, we'll make use of the `chron` package's `is.weekend` function:
 
@@ -333,7 +333,7 @@ Finally, we would be remiss not to consider the interval and overall means in ea
 ## 2: weekend       43      12407
 ```
 
-On average, using our completed dataset, weekend daily activity surpassed weekday daily activity by `2149` steps.
+On average, based on our completed dataset, weekend daily activity surpassed weekday daily activity by `2149` steps.
 
 ## Concluding statements
 

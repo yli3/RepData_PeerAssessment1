@@ -55,7 +55,7 @@ First, let's clean this data by addressing an oddity in its format. The interval
    head(dt$interval, 15)  
 ```
 
-To fix this, we can extract the hour and the minute using the quotient and remainder resulting from division by `100`. For purposes of this endeavor, we'll leave things comfortably simple and numeric:
+To fix this, we extract the hour and the minute using the quotient and remainder resulting from division by `100`. For purposes of this endeavor, we'll leave things comfortably simple and numeric:
 
 ```{r interval_process}
   # Preprocessing to adjust "interval" format to "true minutes from midnight".
@@ -156,9 +156,9 @@ First, let's try to see where our `NA` values are occurring by counting how many
 
 We observe that data is missing from several days completely (there are ``r 24 * 60 / 5`` intervals per day), and all other days are complete. 
 
-A simple way to fill in the missing values is to use the mean interval value over the dataset. This would be suitable if we had occasional pockets of missing data, but ours are from complete days. Filling the `NA` values with the averages serves only to preserve the daily total mean and daily mean activity pattern exactly. Doing so would treat the given dataset as totally complete, but with ``n =`` ``r length(unique(dt$date)) - length(unique(dt[naRows]$date))`` days of observations rather than ``n = `` ``r length(unique(dt$date))``. Thus, while the daily median would understandably be nudged, no resolution is gained in the exercise.
+A simple way to fill in the missing values is to use the mean interval value over the dataset. This would be suitable if we had occasional pockets of missing data, rather than only missing whole days. Filling the `NA` values with the averages treats the given dataset as complete, but with ``n =`` ``r length(unique(dt$date)) - length(unique(dt[naRows]$date))`` days of observations rather than ``n = `` ``r length(unique(dt$date))``. Thus, the interval and daily means remain the same, and while the median is nudged, no resolution is gained in the exercise. For example, why not add arbitrary numbers of duplicate mean days to the dataset?
 
-Another simple, but potentially more meaningful way of addressing `NA` values is to instead replace each one with with mean interval steps for the same day of week. This addresses the possibility that the relative omission of certain days of the week may be skewing average daily patterns, as well as total data. 
+Another simple, but potentially more meaningful way of addressing `NA` values is to instead replace each one with with mean interval steps for the same day of week. This addresses the possibility that within the specific timeframe of the collected data, a relative omission of certain days of the week may be skewing both the average daily interval pattern, as well as the mean daily steps.
 
 We'll look more closely at that possibility in the next section. For now, our `NA` imputing method is presented:
 
@@ -184,7 +184,7 @@ We'll look more closely at that possibility in the next section. For now, our `N
   dt.complete[naRows, steps := naReplacements]
 ```
 
-Note that there was an assumption here that `na.omit(dt)` still contained every day of the week, ensuring that we would always have a valid NA value to impute. This can easily be verified:
+Note that there was an assumption here that `na.omit(dt)` still contained every day of the week, ensuring that we would always have a valid NA value to impute. This may easily be verified:
 
 ```{r na_verify_weekdays}
   length(unique(na.omit(dt)$dayWeek))
@@ -196,7 +196,7 @@ It's worth also recognizing a limitation: this method is best when the dataset i
   na.omit(dt)[, .(num = length(unique(date))), by = dayWeek]
 ```
 
-We now revisit the question posed in the first section -- *what is the total number of steps taken per day?* -- and evaluate it with our newly completed dataset `dt.complete` (containing ``r sum(is.na(dt.complete))`` `NA` rows).
+We now revisit the question posed in the first section -- *what is the total number of steps taken per day?* -- and evaluate it with our newly completed dataset `dt.complete` (which contains ``r sum(is.na(dt.complete))`` `NA` rows).
 
 ```{r total_steps_complete}
   # New data table for totalSteps by date.
@@ -223,11 +223,11 @@ We now revisit the question posed in the first section -- *what is the total num
 
 Now `Total steps per day` has mean ``r mean(dt.complete.total$totalSteps)`` and median ``r median(dt.complete.total$totalSteps)``. To compare, the original results from the NA-omitted dataset were mean ``r mean(dt.total$totalSteps)`` and median ``r median(dt.total$totalSteps)``.
 
-The impact is modest, but both mean and median have shifted upwards. This method of imputing `NA` values suggests that the missing dates from this interval removed some potentially more active days from the original dataset. It's important to caution that other methods (such as median interval steps) may have yielded much different results, but for purposes of this assignment, *quality* of the method was not a consideration so much as illustrating its execution.
+The impact is modest, but both mean and median have shifted upwards. This method of imputing `NA` values suggests, then, that the missing dates produced a slight downwards bias by excluding observations from some of the days likely to have been more active in the dataset. It's important to caution that other methods (such as median interval steps) may paint a much different picture, but for purposes of this assignment, the merits of the `NA` imputing method are secondary to its demonstration.
 
 ## Daily activity: weekdays versus weekends  
 
-Continuing to work with the completed dataset, we return to revisit more broadly our earlier suggestion that activity patterns may be different for different days of the week. Here, we'll consider **average daily activity** per interval, comparing weekdays versus weekends. 
+Continuing to work with the completed dataset, we return to revisit more broadly our earlier suggestion that activity patterns may be different for different days of the week. Here, we'll consider the difference in **weekday** and **weekend** observations for average daily activity per 5-minute interval.
 
 To do this, we'll introduce a factor variable to `dt.complete` indicating whether each observation falls on a weekday or weekend. For convenience, we'll make use of the `chron` package's `is.weekend` function:
 
@@ -277,7 +277,7 @@ Finally, we would be remiss not to consider the interval and overall means in ea
   comparison
 ```  
 
-On average, using our completed dataset, weekend daily activity surpassed weekday daily activity by ``r comparison$dailySteps[2] - comparison$dailySteps[1]`` steps.
+On average, based on our completed dataset, weekend daily activity surpassed weekday daily activity by ``r comparison$dailySteps[2] - comparison$dailySteps[1]`` steps.
 
 ## Concluding statements
 
