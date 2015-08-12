@@ -1,3 +1,11 @@
+### Nota Bene
+
+This repository is a completed Peer Assessment 1 assignment for the RepData-031 session of "Reproducible Research" in August 2015. 
+
+The online instructions differ from the PDF instructions included in the repository in specifying the name of the plots directory; the former reads ``figure/`` while the latter reads ``figures/``. This is a really insignificant point, but I thought I'd clarify that I went with the latter -- on the off chance that causes any confusion during peer review.
+
+Thanks! :) The original, unaltered remainder of the readme follows below:
+
 ## Introduction
 
 It is now possible to collect a large amount of data about personal
