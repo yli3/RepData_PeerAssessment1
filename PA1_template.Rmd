@@ -163,11 +163,9 @@ Another simple, but potentially more meaningful way of addressing `NA` values is
 We'll look more closely at that possibility in the next section. For now, our `NA` imputing method is presented:
 
 ```{r na_impute_method, results = "hide"}
-  # Construct table of mean steps for each dayWeek, interval pair.
+  # Construct table of mean steps for each (dayWeek, interval) pair.
   dt$dayWeek <- strptime(dt$date, format = "%Y-%m-%d")$wday
   dt.intervals <- na.omit(dt)[, .(avgSteps = mean(steps)), by = .(dayWeek, interval)]
-  
-  dt.intervals
   
   # Work off a copy of original dataset.
   dt.complete <- copy(dt)

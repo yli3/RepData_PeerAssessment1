@@ -210,7 +210,19 @@ hr {
 <p>To perform our data analysis and generate our figures, we&#39;ll make use of the following <strong>R</strong> libraries:</p>
 
 <pre><code class="r">  library(data.table)   # data
-  library(ggplot2)      # graphics
+</code></pre>
+
+<pre><code>## data.table 1.9.4  For help type: ?data.table
+## *** NB: by=.EACHI is now explicit. See README to restore previous behaviour.
+## 
+## Attaching package: &#39;data.table&#39;
+## 
+## The following object is masked _by_ &#39;.GlobalEnv&#39;:
+## 
+##     .N
+</code></pre>
+
+<pre><code class="r">  library(ggplot2)      # graphics
   library(chron)        # handling dates
 </code></pre>
 
@@ -364,11 +376,9 @@ hr {
 
 <p>We&#39;ll look more closely at that possibility in the next section. For now, our <code>NA</code> imputing method is presented:</p>
 
-<pre><code class="r">  # Construct table of mean steps for each dayWeek, interval pair.
+<pre><code class="r">  # Construct table of mean steps for each (dayWeek, interval) pair.
   dt$dayWeek &lt;- strptime(dt$date, format = &quot;%Y-%m-%d&quot;)$wday
   dt.intervals &lt;- na.omit(dt)[, .(avgSteps = mean(steps)), by = .(dayWeek, interval)]
-
-  dt.intervals
 
   # Work off a copy of original dataset.
   dt.complete &lt;- copy(dt)

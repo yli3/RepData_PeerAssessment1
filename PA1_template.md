@@ -19,6 +19,20 @@ To perform our data analysis and generate our figures, we'll make use of the fol
 
 ```r
   library(data.table)   # data
+```
+
+```
+## data.table 1.9.4  For help type: ?data.table
+## *** NB: by=.EACHI is now explicit. See README to restore previous behaviour.
+## 
+## Attaching package: 'data.table'
+## 
+## The following object is masked _by_ '.GlobalEnv':
+## 
+##     .N
+```
+
+```r
   library(ggplot2)      # graphics
   library(chron)        # handling dates
 ```
@@ -188,11 +202,9 @@ We'll look more closely at that possibility in the next section. For now, our `N
 
 
 ```r
-  # Construct table of mean steps for each dayWeek, interval pair.
+  # Construct table of mean steps for each (dayWeek, interval) pair.
   dt$dayWeek <- strptime(dt$date, format = "%Y-%m-%d")$wday
   dt.intervals <- na.omit(dt)[, .(avgSteps = mean(steps)), by = .(dayWeek, interval)]
-  
-  dt.intervals
   
   # Work off a copy of original dataset.
   dt.complete <- copy(dt)
