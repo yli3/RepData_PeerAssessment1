@@ -3,8 +3,6 @@ title: "Reproducible Research: Peer Assessment 1"
 output: 
   html_document:
     toc: true
-    toc_depth: 2
-    theme: united
     keep_md: true
 ---
 
@@ -14,7 +12,7 @@ output:
 
 Activity monitoring devices are growing in popularity, but the question of how to use and interpret the collected data remains somewhat open-ended.
 
-In this article, we perform a case study using "number of steps" data from an anonymous individual collected during October and November 2012. We'll attempt to answer a few basic questions with the aid of the **R language**.
+In this article, we perform a case study using "number of steps" data from an anonymous individual collected during October and November, 2012. We'll attempt to answer a few basic questions with the aid of the **R language**.
 
 To perform our data analysis and generate our figures, we'll make use of the following **R** libraries:
 
@@ -29,15 +27,15 @@ To perform our data analysis and generate our figures, we'll make use of the fol
 
 The dataset is provided in `activity.csv`, a comma-delimited file archived within `activity.zip`.
 
-We'll start with extracting and loading the data, if it hasn't been done already.
+We'll start by extracting and loading the data, if that hasn't been done already.
 
 
 ```r
   if(!file.exists("./activity.csv")) {
-    unzip("activity.zip") 
+    unzip("./activity.zip") 
   }
 
-  dt <- fread("./activity.csv",
+  dt <- fread("./activity.csv", 
     colClasses = c("numeric", "character", "numeric")
   )
 ```
@@ -49,9 +47,37 @@ There are three variables in the data:
 
 In all, there are `17568` observations in the dataset.
 
+First, let's clean this data by addressing an oddity in its format. The interval identifier is in *approximately* `%H%M` form, but the hour number is omitted when it is zero, and the minute number has no leading zeroes in the first hour. It's not readily dealt with by any standard R functions, and, if taken as a numeric axis, poses the problem of not all intervals being equal, as illustrated below:
+
+
+```r
+   head(dt$interval, 15)  
+```
+
+```
+##  [1]   0   5  10  15  20  25  30  35  40  45  50  55 100 105 110
+```
+
+To fix this, we can extract the hour and the minute using the quotient and remainder resulting from division by `100`. For purposes of this endeavor, we'll leave things comfortably simple and numeric:
+
+
+```r
+  # Preprocessing to adjust "interval" format to "true minutes from midnight".
+  dt$interval <- (dt$interval %/% 100) * 60 + (dt$interval %% 100)
+  
+  # Check results.
+  head(dt$interval, 15)
+```
+
+```
+##  [1]  0  5 10 15 20 25 30 35 40 45 50 55 60 65 70
+```
+
+Later on, we'll manipulate and subset the data further as needed.
+
 ## What is mean total number of steps taken per day? 
 
-We'll first consider the mean total steps taken per day by **ignoring** `NA` values. In a later section, we'll revisit this decision.
+We first consider the mean total steps taken per day. Initially, we will simply ignore any `NA` values in the data. In a later section, we'll revisit this decision. Note that throughout this assignment, we will be using `data.table` grammar.
 
 
 ```r
@@ -73,7 +99,7 @@ We'll first consider the mean total steps taken per day by **ignoring** `NA` val
       breaks = seq(0, 18, 3),
       minor_breaks = seq(0, 18, 1)
     ) +
-    labs(title = "NA-removed Daily Steps Histogram\n") +
+    labs(title = "NA-omitted Daily Steps Histogram\n") +
     labs(x = "\nTotal steps per day", y = "\nFrequency")
 ```
 
@@ -83,36 +109,14 @@ We'll first consider the mean total steps taken per day by **ignoring** `NA` val
 
 ## Average daily activity pattern 
 
-Next, we'll consider the average daily activity pattern -- that is, for each of the `288` five-minute intervals of the day, what was the average number of steps taken over the whole of the dataset? As before, we'll continue to ignore `NA` values.
+Next, we consider the average daily activity pattern -- that is, for each of the `288` five-minute intervals of the day, what was the average number of steps taken over the whole of the dataset? As before, we'll continue to ignore `NA` values.
 
 
 ```r
   # dt.daily: Average steps per interval, NA omitted.
   dt.daily <- na.omit(dt)[, .(avgSteps = mean(steps)), by = interval]
   
-  # Calculate interval with max(avgSteps), and format as %H:%M.
-  dt.daily.max <- dt.daily[which(dt.daily$avgSteps == max(avgSteps))]$interval
-  
-  dt.daily.max.output <- paste(
-    sprintf("%02d", dt.daily.max %/% 100),
-    sprintf("%02d", dt.daily.max %% 100),
-    sep = ":"
-  )
-  
-  # Paste together multiple items in case of tie.
-  if (length(dt.daily.max > 1)) {
-    dt.daily.max.output <- do.call(paste, 
-      list(dt.daily.max.output, collapse = ", ")
-    )
-  }
-
-  ## Time series plot.
-  # First, adjust "interval" to be true "minutes from midnight" time.
-  dt.daily$interval <- 
-    (dt.daily$interval %/% 100) * 60 + 
-    (dt.daily$interval %% 100)
-  
-  # Form plot.
+  # Time series plot.
   ggplot(data = dt.daily, aes(x = interval, y = avgSteps)) +
     geom_line() +
     scale_x_continuous(
@@ -124,17 +128,35 @@ Next, we'll consider the average daily activity pattern -- that is, for each of 
         sep = ":"
       )
     ) +
-    labs(title = "NA-removed Daily Activity Per 5-minute Interval\n") +
+    labs(title = "NA-omitted Daily Activity Per 5-minute Interval\n") +
     labs(x = "\nInterval Start Time", y = "Average steps per interval\n")
 ```
 
 ![plot of chunk daily_activity_na](figures/daily_activity_na-1.png) 
 
-We find the 5-minute interval with the highest average steps over this dataset to be the ones starting at `08:35`, with $\sim$ `206.2` average steps.
+```r
+  # Calculate interval with max(avgSteps), and format as %H:%M.
+  dt.daily.max <- dt.daily[which(dt.daily$avgSteps == max(avgSteps))]$interval
+  
+  dt.daily.max.output <- paste(
+    sprintf("%02d", dt.daily.max %/% 60),
+    sprintf("%02d", dt.daily.max %% 60),
+    sep = ":"
+  )
+  
+  # Paste together multiple "max" results in case of tie.
+  if (length(dt.daily.max > 1)) {
+    dt.daily.max.output <- do.call(paste, 
+      list(dt.daily.max.output, collapse = ", ")
+    )
+  }
+```
+
+We find the 5-minute interval with the highest average steps over this dataset to be the one starting at `08:35`, with about `206.2` average steps.
 
 ## Imputing missing values
 
-We now turn to the question of missing values. In the original dataset, there were `2304` `NA` values. By omitting these from calculations, we may have introduced biases into our results.
+We now turn again to the question of missing values. In the original dataset, there were `2304` `NA` values. By omitting these from calculations, it's possible that our results were biased. What kind of biases, and what might we do about them?
 
 First, let's try to see where our `NA` values are occurring by counting how many there are for each date that contains at least one `NA` value:
 
@@ -156,19 +178,22 @@ First, let's try to see where our `NA` values are occurring by counting how many
 ##        288        288
 ```
 
-A simple way of addressing occasional `NA` values would be to replace each incidence with the average for that particular interval over the entire dataset. However, we can observe that in this case, we do not have occasional missing data; instead, data is missing from several days completely (as there are `288` intervals per day), and all other days are complete. Thus, to populate the missing dates with mean interval data would be simply to preserve mean steps per day and daily activity pattern. It would be to treat the dataset as merely over a fewer number of days, but otherwise as complete.
+We observe that data is missing from several days completely (there are `288` intervals per day), and all other days are complete. 
 
-Another simple, but given the nature of our dataset, potentially more meaningful way of addressing `NA` values is to instead replace them with with mean interval for that day of week. This could be useful in that it does a more specific job of completing the dataset, and moderates any bias over the timespan studied that may have been introduced by the relative omission of certain days of the week. 
+A simple way to fill in the missing values is to use the mean interval value over the dataset. This would be suitable if we had occasional pockets of missing data, but ours are from complete days. Filling the `NA` values with the averages serves only to preserve the daily total mean and daily mean activity pattern exactly. Doing so would treat the given dataset as totally complete, but with ``n =`` `53` days of observations rather than ``n = `` `61`. Thus, while the daily median would understandably be nudged, no resolution is gained in the exercise.
 
-We'll look more closely at that topic in the next section. For now, our `NA` imputing methodology is presented:
+Another simple, but potentially more meaningful way of addressing `NA` values is to instead replace each one with with mean interval steps for the same day of week. This addresses the possibility that the relative omission of certain days of the week may be skewing average daily patterns, as well as total data. 
+
+We'll look more closely at that possibility in the next section. For now, our `NA` imputing method is presented:
 
 
 ```r
-  ## Fill NA values with interval average (for same day-of-week)
-  
+  # Construct table of mean steps for each dayWeek, interval pair.
   dt$dayWeek <- strptime(dt$date, format = "%Y-%m-%d")$wday
   dt.intervals <- na.omit(dt)[, .(avgSteps = mean(steps)), by = .(dayWeek, interval)]
-
+  
+  dt.intervals
+  
   # Work off a copy of original dataset.
   dt.complete <- copy(dt)
   
@@ -186,7 +211,7 @@ We'll look more closely at that topic in the next section. For now, our `NA` imp
   dt.complete[naRows, steps := naReplacements]
 ```
 
-Note that there's an assumption here that `na.omit(dt)` still contains every day of the week, which ensures we will always have a valid NA value to impute. This is easily verified:
+Note that there was an assumption here that `na.omit(dt)` still contained every day of the week, ensuring that we would always have a valid NA value to impute. This can easily be verified:
 
 
 ```r
@@ -197,25 +222,25 @@ Note that there's an assumption here that `na.omit(dt)` still contains every day
 ## [1] 7
 ```
 
-It's worth considering that this method is better when the dataset is larger and there are more complete days from which to calculate our interval averages. For the sake of completeness, we'll take a look at over how many days each of our imputed values was averaged:
+It's worth also recognizing a limitation: this method is best when the dataset is large and there are more valid data points from which to calculate our interval averages. For the sake of completeness, here's a table of over how many days each of our imputed values was averaged:
 
 
 ```r
-  na.omit(dt)[, length(unique(date)), by = dayWeek]
+  na.omit(dt)[, .(num = length(unique(date))), by = dayWeek]
 ```
 
 ```
-##    dayWeek V1
-## 1:       2  9
-## 2:       3  8
-## 3:       4  8
-## 4:       5  7
-## 5:       6  7
-## 6:       0  7
-## 7:       1  7
+##    dayWeek num
+## 1:       2   9
+## 2:       3   8
+## 3:       4   8
+## 4:       5   7
+## 5:       6   7
+## 6:       0   7
+## 7:       1   7
 ```
 
-We'll now revisit our first question - *what is the total number of steps taken per day?* - and evaluate it with our newly-completed dataset `dt.complete` (which now has `0` `NA` rows).
+We now revisit the question posed in the first section -- *what is the total number of steps taken per day?* -- and evaluate it with our newly completed dataset `dt.complete` (containing `0` `NA` rows).
 
 
 ```r
@@ -243,13 +268,13 @@ We'll now revisit our first question - *what is the total number of steps taken 
 
 ![plot of chunk total_steps_complete](figures/total_steps_complete-1.png) 
 
-Now `Total steps per day` has mean $\sim$ `10821.2` and median `11015`. To compare, the original results from the NA-omitted dataset were mean `10766.2` and median `10765`.
+Now `Total steps per day` has mean `10821.2` and median `11015`. To compare, the original results from the NA-omitted dataset were mean `10766.2` and median `10765`.
 
 The impact is modest, but both mean and median have shifted upwards. This method of imputing `NA` values suggests that the missing dates from this interval removed some potentially more active days from the original dataset.
 
 ## Daily activity: weekdays versus weekends  
 
-We'll now work with the completed dataset, and return to revisit more broadly our earlier suggestion that activity patterns may be different for different days of the week. Here, we'll consider **average interval activity** during weekdays versus weekends. 
+Continuing to work with the completed dataset, we return to revisit more broadly our earlier suggestion that activity patterns may be different for different days of the week. Here, we'll consider **average daily activity** per interval, comparing weekdays versus weekends. 
 
 To do this, we'll introduce a factor variable to `dt.complete` indicating whether each observation falls on a weekday or weekend. For convenience, we'll make use of the `chron` package's `is.weekend` function:
 
@@ -261,7 +286,7 @@ To do this, we'll introduce a factor variable to `dt.complete` indicating whethe
   )
   
   dt.complete.daily <- dt.complete[, 
-    j = .(avgSteps = mean(steps)), 
+    .(avgSteps = mean(steps)), 
     by = .(interval, dayType)
   ]
 ```
@@ -270,11 +295,7 @@ Note that `class(dt.complete$dayType)` is `character`, but will be converted to 
 
 
 ```r
-  # First, adjust "interval" to be true "minutes from midnight" time.
-  dt.complete.daily$interval <- 
-    (dt.complete.daily$interval %/% 100) * 60 + 
-    (dt.complete.daily$interval %% 100)
-  
+  # Time series plot with facets.
   ggplot(data = dt.complete.daily, aes(x = interval, y = avgSteps)) +
     geom_line(aes(color = dayType)) +
     facet_wrap(~dayType, ncol = 1) +
@@ -294,9 +315,9 @@ Note that `class(dt.complete$dayType)` is `character`, but will be converted to 
 
 ![plot of chunk daily_activity_complete_dayType](figures/daily_activity_complete_dayType-1.png) 
 
-We see a very different activity pattern on weekdays versus weekends. On weekdays, activity starts up earlier and spikes in the morning hours, while on weekends activity is distributed more evenly throughout the day. 
+We observe distinct activity profiles on weekdays versus weekends. On weekdays, activity begins earlier and spikes heavily in the morning hours; on weekends, activity is distributed more evenly throughout the day. 
 
-Finally, we would be remiss not to consider the interval mean for weekdays and weekends:
+Finally, we would be remiss not to consider the interval means in each case:
 
 
 ```r
@@ -310,7 +331,7 @@ Finally, we would be remiss not to consider the interval mean for weekdays and w
 ```
 ## Concluding statements
 
-We've taken a brief stroll through the capability of **R** to evaluate, interpret, and modulate personal activity data, demonstrating some of its potential in the burgeoning "quantified self" arena. 
+We've taken a brief stroll through the capability of **R** to evaluate, interpret, and modulate personal activity data. Though this is only the tip of the iceberg, we've demonstrated some of **R**'s potential in the burgeoning arena of the "quantified self". Happy continued exploring!
 
-Feedback & comments are much appreciated, and I hope you're similarly enjoying your experience in the *Data Science Specialization* track!  
+Feedback & comments are much appreciated, and I hope that you are similarly enjoying your experience in the *Data Science Specialization* track!  
   
