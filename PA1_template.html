@@ -481,15 +481,22 @@ hr {
 
 <p>We observe distinct activity profiles on weekdays versus weekends. On weekdays, activity begins earlier and spikes heavily in the morning hours; on weekends, activity is distributed more evenly throughout the day. </p>
 
-<p>Finally, we would be remiss not to consider the interval means in each case:</p>
+<p>Finally, we would be remiss not to consider the interval and overall means in each case:</p>
 
-<pre><code class="r">  dt.complete[, .(avgSteps = mean(steps)), by = dayType]
+<pre><code class="r">  comparison &lt;- dt.complete[, 
+    .(avgSteps = mean(steps), dailySteps = mean(steps) * 24 * 60 / 5), 
+    by = dayType
+  ]
+
+  comparison
 </code></pre>
 
-<pre><code>##    dayType avgSteps
-## 1: weekday       36
-## 2: weekend       43
+<pre><code>##    dayType avgSteps dailySteps
+## 1: weekday       36      10258
+## 2: weekend       43      12407
 </code></pre>
+
+<p>On average, using our completed dataset, weekend daily activity surpassed weekday daily activity by <code>2149</code> steps.</p>
 
 <h2>Concluding statements</h2>
 

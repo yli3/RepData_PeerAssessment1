@@ -317,18 +317,26 @@ Note that `class(dt.complete$dayType)` is `character`, but will be converted to 
 
 We observe distinct activity profiles on weekdays versus weekends. On weekdays, activity begins earlier and spikes heavily in the morning hours; on weekends, activity is distributed more evenly throughout the day. 
 
-Finally, we would be remiss not to consider the interval means in each case:
+Finally, we would be remiss not to consider the interval and overall means in each case:
 
 
 ```r
-  dt.complete[, .(avgSteps = mean(steps)), by = dayType]
+  comparison <- dt.complete[, 
+    .(avgSteps = mean(steps), dailySteps = mean(steps) * 24 * 60 / 5), 
+    by = dayType
+  ]
+  
+  comparison
 ```
 
 ```
-##    dayType avgSteps
-## 1: weekday       36
-## 2: weekend       43
+##    dayType avgSteps dailySteps
+## 1: weekday       36      10258
+## 2: weekend       43      12407
 ```
+
+On average, using our completed dataset, weekend daily activity surpassed weekday daily activity by `2149` steps.
+
 ## Concluding statements
 
 We've taken a brief stroll through the capability of **R** to evaluate, interpret, and modulate personal activity data. Though this is only the tip of the iceberg, we've demonstrated some of **R**'s potential in the burgeoning arena of the "quantified self". Happy continued exploring!
