@@ -256,8 +256,8 @@ To do this, we'll introduce a factor variable to `dt.complete` indicating whethe
 
 ```r
   dt.complete$dayType <- ifelse(is.weekend(dt.complete$date), 
-  "weekend", 
-  "weekday"
+    "weekend", 
+    "weekday"
   )
   
   dt.complete.daily <- dt.complete[, 
