@@ -19,20 +19,6 @@ To perform our data analysis and generate our figures, we'll make use of the fol
 
 ```r
   library(data.table)   # data
-```
-
-```
-## data.table 1.9.4  For help type: ?data.table
-## *** NB: by=.EACHI is now explicit. See README to restore previous behaviour.
-## 
-## Attaching package: 'data.table'
-## 
-## The following object is masked _by_ '.GlobalEnv':
-## 
-##     .N
-```
-
-```r
   library(ggplot2)      # graphics
   library(chron)        # handling dates
 ```

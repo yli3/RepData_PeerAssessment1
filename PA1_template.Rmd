@@ -19,7 +19,7 @@ In this article, we perform a case study using "number of steps" data from an an
 
 To perform our data analysis and generate our figures, we'll make use of the following **R** libraries:
 
-```{r libraries, results = "hide"}
+```{r libraries, message = FALSE}
   library(data.table)   # data
   library(ggplot2)      # graphics
   library(chron)        # handling dates
