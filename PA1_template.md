@@ -180,7 +180,7 @@ First, let's try to see where our `NA` values are occurring by counting how many
 
 We observe that data is missing from several days completely (there are `288` intervals per day), and all other days are complete. 
 
-A simple way to fill in the missing values is to use the mean interval value over the dataset. This would be suitable if we had occasional pockets of missing data, rather than only missing whole days. Filling the `NA` values with the averages treats the given dataset as complete, but with ``n =`` `53` days of observations rather than ``n = `` `61`. Thus, the interval and daily means remain the same, and while the median is nudged, no resolution is gained in the exercise. For example, why not add arbitrary numbers of duplicate mean days to the dataset?
+A simple way to fill in the missing values is to use the mean interval value over the dataset. For our dataset, this would add `53` identical days that follow the overall mean activity pattern. The overall mean would be preserved exactly, and the median would be nudged toward, if not reach, the mean.
 
 Another simple, but potentially more meaningful way of addressing `NA` values is to instead replace each one with with mean interval steps for the same day of week. This addresses the possibility that within the specific timeframe of the collected data, a relative omission of certain days of the week may be skewing both the average daily interval pattern, as well as the mean daily steps.
 
@@ -268,7 +268,7 @@ We now revisit the question posed in the first section -- *what is the total num
 
 Now `Total steps per day` has mean `10821.2` and median `11015`. To compare, the original results from the NA-omitted dataset were mean `10766.2` and median `10765`.
 
-The impact is modest, but both mean and median have shifted upwards. This method of imputing `NA` values suggests, then, that the missing dates produced a slight downwards bias by excluding observations from some of the days likely to have been more active in the dataset. It's important to caution that other methods (such as median interval steps) may paint a much different picture, but for purposes of this assignment, the merits of the `NA` imputing method are secondary to its demonstration.
+The impact is modest, with small upwards shifts in mean and median. This method of imputing `NA` values suggests that the missing dates produced a slight downwards bias by excluding observations from some of the days likely to have been more active in the dataset. It's important to caution that other methods may have painted a different picture, but for purposes of this assignment, the merits of the `NA` imputing method selected were secondary to its demonstration.
 
 ## Daily activity: weekdays versus weekends  
 
