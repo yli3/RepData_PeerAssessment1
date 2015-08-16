@@ -25,7 +25,7 @@ To perform our data analysis and generate our figures, we'll make use of the fol
 
 ## Loading and preprocessing the data
 
-The dataset is provided in `activity.csv`, a comma-delimited file archived within `activity.zip`.
+The dataset is provided in `activity.csv`, a comma-delimited file archived within `activity.zip`. The zip file is provided [as a download on cloudfront](https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip) and is expected to be in the working directory.
 
 We'll start by extracting and loading the data, if that hasn't been done already.
 
@@ -47,7 +47,7 @@ There are three variables in the data:
 
 In all, there are `17568` observations in the dataset.
 
-First, let's clean this data by addressing an oddity in its format. The interval identifier is in *approximately* `%H%M` form, but the hour number is omitted when it is zero, and the minute number has no leading zeroes in the first hour. It's not readily dealt with by any standard R functions, and, if taken as a numeric axis, poses the problem of not all intervals being equal, as illustrated below:
+First, we do some basic data cleaning by addressing an oddity in its format. The interval identifier is effectively treated as base 60, using only base 10 digits. It's not readily dealt with by any standard R functions, and, if taken as a numeric axis, poses the problem of not all intervals being equal, as illustrated below:
 
 
 ```r
@@ -58,7 +58,7 @@ First, let's clean this data by addressing an oddity in its format. The interval
 ##  [1]   0   5  10  15  20  25  30  35  40  45  50  55 100 105 110
 ```
 
-To fix this, we extract the hour and the minute using the quotient and remainder resulting from division by `100`. For purposes of this endeavor, we'll leave things comfortably simple and numeric:
+To fix this, we extract the hour and the minute values as the quotient and remainder resulting from division by `100`, respectively. For purposes of this endeavor, we'll leave things comfortably simple and numeric:
 
 
 ```r
@@ -99,11 +99,22 @@ We first consider the mean total steps taken per day. Initially, we will simply 
       breaks = seq(0, 18, 3),
       minor_breaks = seq(0, 18, 1)
     ) +
+    # n.b \n provides a simple way of adding axis label margins in ggplot2.
     labs(title = "NA-omitted Daily Steps Histogram\n") +
-    labs(x = "\nTotal steps per day", y = "\nFrequency")
+    labs(x = "\nTotal steps per day", y = "Frequency\n")
 ```
 
 ![plot of chunk total_steps_na](figure/total_steps_na-1.png) 
+
+```r
+  # Calculations.
+  summary(dt.total$totalSteps)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##      41    8840   10800   10800   13300   21200
+```
 
 `Total steps per day` has mean `10766.2` and median `10765`.
 
@@ -156,7 +167,7 @@ We find the 5-minute interval with the highest average steps over this dataset t
 
 ## Imputing missing values
 
-We now turn again to the question of missing values. In the original dataset, there were `2304` `NA` values. By omitting these from calculations, it's possible that our results were biased. What kind of biases, and what might we do about them?
+We now turn again to the question of missing values. In the original dataset, there were `2304` `NA` values. By omitting these from calculations, it's possible that our results became . What kind of biases, and what might we do about them?
 
 First, let's try to see where our `NA` values are occurring by counting how many there are for each date that contains at least one `NA` value:
 
@@ -180,11 +191,11 @@ First, let's try to see where our `NA` values are occurring by counting how many
 
 We observe that data is missing from several days completely (there are `288` intervals per day), and all other days are complete. 
 
-A simple way to fill in the missing values is to use the mean interval value over the dataset. For our dataset, this would add `53` identical days that follow the overall mean activity pattern. The overall mean would be preserved exactly, and the median would be nudged toward, if not reach, the mean.
+A simple way to fill in the missing values is to use the mean interval value over the dataset. For our dataset, this would add `8` identical days that follow the overall mean activity pattern. The overall mean would be preserved exactly, and the median would be mostly likely match the mean, or at least be nudged towards it.
 
-Another simple, but potentially more meaningful way of addressing `NA` values is to instead replace each one with with mean interval steps for the same day of week. This addresses the possibility that within the specific timeframe of the collected data, a relative omission of certain days of the week may be skewing both the average daily interval pattern, as well as the mean daily steps.
+Another simple, but potentially more meaningful way of addressing `NA` values is to instead replace each one with with mean interval steps for the same day of week. This addresses the possibility that, within the specific timeframe of the collected data, a relative omission of certain days of the week may be have skewed our picture of patterns and totals.
 
-We'll look more closely at that possibility in the next section. For now, our `NA` imputing method is presented:
+We'll look a little more closely at that possibility in the next section. For now, our `NA` imputing method is presented:
 
 
 ```r
@@ -220,7 +231,7 @@ Note that there was an assumption here that `na.omit(dt)` still contained every 
 ## [1] 7
 ```
 
-It's worth also recognizing a limitation: this method is best when the dataset is large and there are more valid data points from which to calculate our interval averages. For the sake of completeness, here's a table of over how many days each of our imputed values was averaged:
+It's worth also recognizing a limitation: this method is best when the dataset is large and there are more valid data points from which to calculate our interval averages. For the sake of completeness, here's a table showing over how many days each of our imputed interval values was averaged:
 
 
 ```r
@@ -238,7 +249,7 @@ It's worth also recognizing a limitation: this method is best when the dataset i
 ## 7:       1   7
 ```
 
-We now revisit the question posed in the first section -- *what is the total number of steps taken per day?* -- and evaluate it with our newly completed dataset `dt.complete` (which contains `0` `NA` rows).
+We now revisit the question posed in the first section -- *what is the total number of steps taken per day?* -- and evaluate it with our newly completed dataset `dt.complete` (which contains `0 `NA` rows).
 
 
 ```r
@@ -266,7 +277,17 @@ We now revisit the question posed in the first section -- *what is the total num
 
 ![plot of chunk total_steps_complete](figure/total_steps_complete-1.png) 
 
-Now `Total steps per day` has mean `10821.2` and median `11015`. To compare, the original results from the NA-omitted dataset were mean `10766.2` and median `10765`.
+```r
+  # Calculations.
+  summary(dt.complete.total$totalSteps)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##      41    8920   11000   10800   12800   21200
+```
+
+`Total steps per day` for `dt.complete` has mean `10821.2` and median `11015`. To compare, the original results from the NA-omitted dataset were mean `10766.2` and median `10765`.
 
 The impact is modest, with small upwards shifts in mean and median. This method of imputing `NA` values suggests that the missing dates produced a slight downwards bias by excluding observations from some of the days likely to have been more active in the dataset. It's important to caution that other methods may have painted a different picture, but for purposes of this assignment, the merits of the `NA` imputing method selected were secondary to its demonstration.
 
@@ -278,6 +299,7 @@ To do this, we'll introduce a factor variable to `dt.complete` indicating whethe
 
 
 ```r
+  # Introduce weekday/weekend factor "dayType".
   dt.complete$dayType <- as.factor(
     ifelse(is.weekend(dt.complete$date), 
       "weekend", 
