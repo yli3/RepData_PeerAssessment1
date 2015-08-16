@@ -14,6 +14,7 @@ Activity monitoring devices are growing in popularity, but the question of how t
 
 In this article, we perform a case study using "number of steps" data from an anonymous individual collected during October and November, 2012. We'll attempt to answer a few basic questions with the aid of the **R language**.
 
+### Dependencies
 To perform our data analysis and generate our figures, we'll make use of the following **R** libraries:
 
 
@@ -107,16 +108,20 @@ We first consider the mean total steps taken per day. Initially, we will simply 
 ![plot of chunk total_steps_na](figure/total_steps_na-1.png) 
 
 ```r
-  # Calculations.
-  summary(dt.total$totalSteps)
+  # Summary calculations for display (results rounded).
+  list(
+    mean = mean(dt.total$totalSteps),
+    median = median(dt.total$totalSteps)
+  )
 ```
 
 ```
-##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##      41    8840   10800   10800   13300   21200
+## $mean
+## [1] 10766
+## 
+## $median
+## [1] 10765
 ```
-
-`Total steps per day` has mean `10766.2` and median `10765`.
 
 ## Average daily activity pattern 
 
@@ -278,16 +283,22 @@ We now revisit the question posed in the first section -- *what is the total num
 ![plot of chunk total_steps_complete](figure/total_steps_complete-1.png) 
 
 ```r
-  # Calculations.
-  summary(dt.complete.total$totalSteps)
+  # Summary calculations for display (results rounded).
+  list(
+    mean = mean(dt.complete.total$totalSteps), 
+    median = median(dt.complete.total$totalSteps)
+  )
 ```
 
 ```
-##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##      41    8920   11000   10800   12800   21200
+## $mean
+## [1] 10821
+## 
+## $median
+## [1] 11015
 ```
 
-`Total steps per day` for `dt.complete` has mean `10821.2` and median `11015`. To compare, the original results from the NA-omitted dataset were mean `10766.2` and median `10765`.
+To compare, the original results from the NA-omitted dataset were mean `10766.2` and median `10765`.
 
 The impact is modest, with small upwards shifts in mean and median. This method of imputing `NA` values suggests that the missing dates produced a slight downwards bias by excluding observations from some of the days likely to have been more active in the dataset. It's important to caution that other methods may have painted a different picture, but for purposes of this assignment, the merits of the `NA` imputing method selected were secondary to its demonstration.
 
